@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Item</title>
+</head>
+<body>
+    <h1>{{task }}</h1>
+    <form action="/edit/{{ task }}" method="POST">
+        <input type="text" name="task1" value="{{ task }}" required>
+        <button type="submit">Update Task</button>
+</body>
+</html>
+
+
+

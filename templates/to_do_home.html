@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>To Do App Home</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <h1>Welcome to the To Do App</h1>
+    <p>Add your tasks and stay organized!</p>
+
+    <table border="1" cellpadding="5" cellspacing="0">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for task in task_list %}
+            <tr>
+                <td>{{ task[0] }}</td>
+                <td>{{ task[1] }}</td>
+                <td>{{ task[2] }}</td>
+                <td>{{ task[3] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <br>
+    <br>
+    <form action="/add_task" >
+    <label>add New Task</label>
+    <button type="submit">Add Task</button>
+    </form>
+
+</body>
+</html>
