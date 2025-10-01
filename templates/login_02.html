@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Login - To-Do App{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <i class="fas fa-sign-in-alt auth-icon"></i>
+            <h2>Login to Your Account</h2>
+            <p>Welcome back! Please login to continue.</p>
+        </div>
+
+        <form method="POST" class="auth-form">
+            <div class="form-group">
+                <label for="username">
+                    <i class="fas fa-user"></i> Username
+                </label>
+                <input type="text" id="username" name="username" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">
+                    <i class="fas fa-lock"></i> Password
+                </label>
+                <input type="password" id="password" name="password" required>
+            </div>
+
+            <button type="submit" class="auth-btn login-btn">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            <p>Don't have an account? 
+                <a href="{{ url_for('register') }}" class="auth-link">Sign up here</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="features-section">
+    <h3>Why Choose Our To-Do App?</h3>
+    <div class="features-grid">
+        <div class="feature-card">
+            <i class="fas fa-tasks feature-icon"></i>
+            <h4>Organize Tasks</h4>
+            <p>Keep track of all your tasks in one place</p>
+        </div>
+        <div class="feature-card">
+            <i class="fas fa-calendar feature-icon"></i>
+            <h4>Set Due Dates</h4>
+            <p>Never miss a deadline again</p>
+        </div>
+        <div class="feature-card">
+            <i class="fas fa-mobile-alt feature-icon"></i>
+            <h4>Mobile Friendly</h4>
+            <p>Access your tasks anywhere, anytime</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

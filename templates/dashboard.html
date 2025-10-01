@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do App</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='fav-icon.png') }}" type="image/x-icon">
+
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-tasks"></i>To-Do Dashboard</h1>
+            <p>Stay organized and productive with your personal task manager</p>
+        </div>
+
+        <div class="content">
+            <!-- Add New Todo Section -->
+            <div class="section">
+                <h2 class="section-title">
+                    <i class="fas fa-plus-circle"></i>
+                    Add New Task
+                </h2>
+                <div class="form-container">
+                    <form method="POST" action="{{ url_for('add_todo') }}">
+                        <div class="form-group">
+                            <label for="title">
+                                <i class="fas fa-heading"></i>
+                                Task Title:
+                            </label>
+                            <input type="text" id="title" name="title" required placeholder="Enter your task title...">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="due_date">
+                                <i class="fas fa-calendar-alt"></i>
+                                Due Date:
+                            </label>
+                            <input type="date" id="due_date" name="due_date">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="description">
+                                <i class="fas fa-align-left"></i>
+                                Description:
+                            </label>
+                            <textarea id="description" name="description" placeholder="Add a detailed description of your task..."></textarea>
+                        </div>
+
+                        <button type="submit" class="btn-submit">
+                            <i class="fas fa-plus"></i>
+                            Add Task
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <hr class="divider">
+
+            <!-- Todo Statistics -->
+            <div class="section">
+                <h2 class="section-title">
+                    <i class="fas fa-chart-pie"></i>
+                    Task Statistics
+                </h2>
+                <div class="stats-container">
+                    <div class="stat-card total">
+                        <i class="fas fa-tasks stat-icon"></i>
+                        <div class="stat-number">{{ todos|length }}</div>
+                        <div class="stat-label">Total Tasks</div>
+                    </div>
+                    <div class="stat-card pending">
+                        <i class="fas fa-clock stat-icon"></i>
+                        <div class="stat-number">{{ todos|selectattr("status", "equalto", "pending")|list|length }}</div>
+                        <div class="stat-label">Pending</div>
+                    </div>
+                    <div class="stat-card completed">
+                        <i class="fas fa-check-circle stat-icon"></i>
+                        <div class="stat-number">{{ todos|selectattr("status", "equalto", "done")|list|length }}</div>
+                        <div class="stat-label">Completed</div>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="divider">
+
+            <!-- Todos List -->
+            <div class="section">
+                <h2 class="section-title">
+                    <i class="fas fa-list-ul"></i>
+                    Your Tasks
+                </h2>
+                <div class="tasks-container">
+                    {% if todos %}
+                        <ul class="tasks-list">
+                            {% for todo in todos %}
+                            <li class="task-item" data-task-id="{{ todo.id }}">
+                                <div class="task-content">
+                                    <div class="task-title">
+                                        <i class="fas fa-{{ 'check-circle' if todo.status == 'done' else 'circle' }}"></i>
+                                        {{ todo.title }}
+                                    </div>
+                                    {% if todo.description %}
+                                        <div class="task-details">
+                                            <i class="fas fa-info-circle"></i>
+                                            {{ todo.description }}
+                                        </div>
+                                    {% endif %}
+                                    <div class="task-meta">
+                                        {% if todo.due_date %}
+                                            <span>
+                                                <i class="fas fa-calendar-alt"></i>
+                                                Due: {{ todo.due_date }}
+                                            </span>
+                                        {% endif %}
+                                        <span class="status-{{ todo.status }}">
+                                            <i class="fas fa-{{ 'check' if todo.status == 'done' else 'clock' }}"></i>
+                                            Status: {{ todo.status|title }}
+                                        </span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Task Actions -->
+                                <div class="task-actions">
+                                    <form method="POST" action="{{ url_for('toggle_todo', todo_id=todo.id) }}" style="display: inline;">
+                                        <button type="submit" class="btn-action btn-toggle" title="{{ 'Mark as Pending' if todo.status == 'done' else 'Mark as Complete' }}">
+                                            <i class="fas fa-{{ 'undo' if todo.status == 'done' else 'check' }}"></i>
+                                        </button>
+                                    </form>
+                                    
+                                    <button class="btn-action btn-edit" onclick="toggleEditForm('{{ todo.id }}')" title="Edit Task">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    
+                                    <form method="POST" action="{{ url_for('delete_todo', todo_id=todo.id) }}" 
+                                          style="display: inline;" 
+                                          onsubmit="return confirmDelete('{{ todo.title }}')">
+                                        <button type="submit" class="btn-action btn-delete" title="Delete Task">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+
+                                <!-- Edit Form (Hidden by default) -->
+                                <div id="edit-form-{{ todo.id }}" class="edit-form" style="display: none;">
+                                    <form method="POST" action="{{ url_for('update_todo', todo_id=todo.id) }}" class="edit-task-form">
+                                        <div class="edit-form-header">
+                                            <h4><i class="fas fa-edit"></i> Edit Task</h4>
+                                            <button type="button" class="btn-close" onclick="toggleEditForm('{{ todo.id }}')">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label for="edit-title-{{ todo.id }}">
+                                                <i class="fas fa-heading"></i>
+                                                Task Title:
+                                            </label>
+                                            <input type="text" id="edit-title-{{ todo.id }}" name="title" 
+                                                   value="{{ todo.title }}" required 
+                                                   placeholder="Enter task title...">
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="edit-due-date-{{ todo.id }}">
+                                                <i class="fas fa-calendar-alt"></i>
+                                                Due Date:
+                                            </label>
+                                            <input type="date" id="edit-due-date-{{ todo.id }}" name="due_date" 
+                                                   value="{{ todo.due_date if todo.due_date else '' }}">
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="edit-description-{{ todo.id }}">
+                                                <i class="fas fa-align-left"></i>
+                                                Description:
+                                            </label>
+                                            <textarea id="edit-description-{{ todo.id }}" name="description" 
+                                                      rows="3" placeholder="Add task description...">{{ todo.description if todo.description else '' }}</textarea>
+                                        </div>
+
+                                        <div class="edit-form-actions">
+                                            <button type="submit" class="btn-save">
+                                                <i class="fas fa-save"></i>
+                                                Save Changes
+                                            </button>
+                                            <button type="button" class="btn-cancel" onclick="toggleEditForm('{{ todo.id }}')">
+                                                <i class="fas fa-times"></i>
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <div class="no-tasks">
+                            <i class="fas fa-clipboard-list"></i>
+                            <h3>No tasks yet!</h3>
+                            <p>Add your first task above to get started on your productivity journey.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <br>
+            <form method="POST" action="{{ url_for('logout') }}">
+                <button type="submit" class="btn-submit">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </button>
+
+            </form>
+            <br>
+            <div class="footer">
+                <p>&copy; 2025 To-Do App. All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+
+</body>
+</html>
